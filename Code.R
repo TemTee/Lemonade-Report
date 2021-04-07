@@ -3,7 +3,7 @@ library(tidyverse)
 library(dplyr)
 library(gridExtra)
 library(lubridate)
-
+###     *******            Predict lemonadde sales using linear regression model        ***********
 lemonade <- readxl::read_xlsx("lemonade edited.xlsx", 
                               sheet = "Lemonade Comma Separated Sheet")
 lemonade <- lemonade %>% mutate(Month = month(as.Date(Date), label = TRUE),
