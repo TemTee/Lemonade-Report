@@ -3,7 +3,11 @@ library(tidyverse)
 library(dplyr)
 library(gridExtra)
 library(lubridate)
-###     *******            Predict lemonadde sales using linear regression model        ***********
+library(psych)
+
+#          *******            Predict lemonade sales using linear regression model        ***********
+
+
 lemonade <- readxl::read_xlsx("lemonade edited.xlsx", 
                               sheet = "Lemonade Comma Separated Sheet")
 lemonade <- lemonade %>% mutate(Month = month(as.Date(Date), label = TRUE),
@@ -16,11 +20,9 @@ lemonade <- lemonade %>% mutate(Month = month(as.Date(Date), label = TRUE),
 str(lemonade)
 head(lemonade)
 
-#####       exploring the data
+#####                   *******     Exploring the data          **********
 
-str(lemonade)
-
-### unorder the data
+######################   unorder the data
 
 set.seed(42, sample.kind = "Rounding")
 row <- sample(nrow(lemonade))    
@@ -30,11 +32,11 @@ head(lemonade)
 
 lemonade %>% 
   summary(
-    c("Date", "Temperature_in_Cel", "Rainfall", "Price", "Sales"))   # summary distribution of the variables
+    c("Date", "Temperature_in_Cel", "Rainfall", "Price", "Sales"))# summary of distribution of the variables
 
-hist(lemonade$Sales)     ## Visualize distribution of sales
+hist(lemonade$Sales)####### Visualize distribution of sales
 
-round(cor(subset(lemonade, select = c(-Date, -Month, -Day)), method = "pearson"), digits = 2)    # check for multivariate correlation
+round(cor(subset(lemonade, select = c(-Date, -Month, -Day)), method = "pearson"), digits = 2)# check for multivariate correlation
 
 round(sapply(data.frame(subset(lemonade, select = c(-Date, -Month, -Day))),
        cor, y = lemonade$Sales, method = "pearson"), digits = 2) # check correlation between sales and other variables
@@ -47,16 +49,21 @@ pairs.panels(lemonade[c(-1,-3)], scale = TRUE)  #  visualiz the correlation and 
 
 
 
-#******************  build a model****************
-# split the data
+#                   ******************          Build a model             **************
+
+
+##################### split the data
 
 library(caret)
 set.seed(1, sample.kind = "Rounding")
 index <- with(lemonade, createDataPartition(y= lemonade$Sales, times = 1, p = 0.3, list = FALSE))
 train_set <- lemonade [-index,]
 test_set <- lemonade [index, ]
+str(train_set)
+str(test_set)
 
-#  train the model
+
+#####################  train the model
 
 fit <- lm(Sales ~ Temperature_in_Cel + Rainfall +
             Flyers + Temperature_in_Cel*Flyers + 
@@ -64,6 +71,7 @@ fit <- lm(Sales ~ Temperature_in_Cel + Rainfall +
 prediction <- predict(fit, test_set)
 
 summary(fit)
+
 74.2 / mean(train_set$Sales) # calculate the error rate of the model residual standard error is 74.2
-RMSE(p, test_set$Sales)
+RMSE(prediction, test_set$Sales)
 R2(prediction, test_set$Sales)
