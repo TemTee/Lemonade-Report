@@ -1,3 +1,6 @@
+#          *******            Predict lemonade sales using linear regression model        ***********
+
+
 library(dslabs)
 library(tidyverse)
 library(dplyr)
@@ -5,11 +8,12 @@ library(gridExtra)
 library(lubridate)
 library(psych)
 
-#          *******            Predict lemonade sales using linear regression model        ***********
+#          *******            Load and manipulate the data        ***********
 
 
 lemonade <- readxl::read_xlsx("lemonade edited.xlsx", 
                               sheet = "Lemonade Comma Separated Sheet")
+
 lemonade <- lemonade %>% mutate(Month = month(as.Date(Date), label = TRUE),
                                 Day = wday(as.Date(Date), label = TRUE),
                                 Price = Price + 2,
@@ -20,8 +24,6 @@ lemonade <- lemonade %>% mutate(Month = month(as.Date(Date), label = TRUE),
 str(lemonade)
 head(lemonade)
 
-#####                   *******     Exploring the data          **********
-
 ######################   unorder the data
 
 set.seed(42, sample.kind = "Rounding")
@@ -30,23 +32,40 @@ lemonade <- lemonade[row, ]
 str(lemonade)
 head(lemonade)
 
+
+#####                   *******     Exploring the data          **********
+
+plot(lemonade$Month, lemonade$Sales)
+plot(lemonade$Day, lemonade$Sales)
+
+####### Visualize distribution of sales
+plot(lemonade)
+hist(lemonade$Sales)
+
+# summary of distribution of the variables
+
 lemonade %>% 
   summary(
-    c("Date", "Temperature_in_Cel", "Rainfall", "Price", "Sales"))# summary of distribution of the variables
-plot(lemonade)
-hist(lemonade$Sales)####### Visualize distribution of sales
+    c("Date", "Temperature_in_Cel", "Rainfall", "Price", "Sales"))
 
-round(cor(subset(lemonade, select = c(-Date, -Month, -Day)), method = "pearson"), digits = 2)# check for multivariate correlation
+describe(lemonade)
+
+# check for multivariate correlation
+
+round(cor(subset(lemonade, select = c(-Date, -Month, -Day)), method = "pearson"), digits = 2)
+
+# check correlation between sales and other variables
 
 round(sapply(data.frame(subset(lemonade, select = c(-Date, -Month, -Day))),
-       cor, y = lemonade$Sales, method = "pearson"), digits = 2) # check correlation between sales and other variables
+       cor, y = lemonade$Sales, method = "pearson"), digits = 2)
 
-# lemonade_z <- as.data.frame(scale(lemonade[4:8]))    # to  standardize the data using z score
+# to  standardize the data using z score
 
-# lemonade_z <- data.frame(lemonade[c(1,2,3)], lemonade_z) # adds other missing variables from lemonade
+# lemonade_z <- as.data.frame(scale(lemonade[4:8])) 
 
-pairs.panels(lemonade[c(-1,-3)], scale = TRUE)  #  visualiz the correlation and distribution
+# add other missing variables from lemonade
 
+# lemonade_z <- data.frame(lemonade[c(1,2,3)], lemonade_z) 
 
 
 #                   ******************          Build a model             **************
@@ -63,7 +82,7 @@ str(train_set)
 str(test_set)
 
 
-#####################  train the model
+#####################  train and test the model
 
 fit <- lm(Sales ~ Temperature_in_Cel + Rainfall +
             Flyers + Temperature_in_Cel*Flyers + 
@@ -72,6 +91,8 @@ prediction <- predict(fit, test_set)
 
 summary(fit)
 
-74.2 / mean(train_set$Sales) # calculate the error rate of the model residual standard error is 74.2
+# calculate the error rate of the model using the residual standard error 74.2
+
+74.2 / mean(train_set$Sales) 
 RMSE(prediction, test_set$Sales)
 R2(prediction, test_set$Sales)
