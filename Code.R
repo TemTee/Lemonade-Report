@@ -33,7 +33,7 @@ head(lemonade)
 lemonade %>% 
   summary(
     c("Date", "Temperature_in_Cel", "Rainfall", "Price", "Sales"))# summary of distribution of the variables
-
+plot(lemonade)
 hist(lemonade$Sales)####### Visualize distribution of sales
 
 round(cor(subset(lemonade, select = c(-Date, -Month, -Day)), method = "pearson"), digits = 2)# check for multivariate correlation
