@@ -50,7 +50,7 @@ lemonade %>%
 
 describe(lemonade)
 
-# check for multivariate correlation
+# check for multivariate correlation in the dataset
 
 round(cor(subset(lemonade, select = c(-Date, -Month, -Day)), method = "pearson"), digits = 2)
 
@@ -82,11 +82,14 @@ str(train_set)
 str(test_set)
 
 
-#####################  train and test the model
+#####################  train the model
 
 fit <- lm(Sales ~ Temperature_in_Cel + Rainfall +
             Flyers + Temperature_in_Cel*Flyers + 
             Rainfall*Flyers + Month, data = train_set)
+
+#     Evaluate the model on the test set
+
 prediction <- predict(fit, test_set)
 
 summary(fit)
@@ -94,5 +97,13 @@ summary(fit)
 # calculate the error rate of the model using the residual standard error 74.2
 
 74.2 / mean(train_set$Sales) 
+
+#  our rmse using the psych package appears ok for a 0 to over four thousand range
+
 RMSE(prediction, test_set$Sales)
+RMSE(fit, train_set$Sales)
+
+# our r ssquared is also at %
 R2(prediction, test_set$Sales)
+
+hist(residuals(fit))
